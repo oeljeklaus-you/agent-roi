@@ -102,6 +102,66 @@ test('task stop completes active task', () => {
   db.close();
 });
 
+test('task stop shows cost per hour', () => {
+  const output = buildTaskStopOutput(
+    {
+      id: 1,
+      name: 'Hourly cost task',
+      projectPath: 'd:\\agent-roi',
+      startedAt: '2026-06-15T01:00:00.000Z',
+      endedAt: '2026-06-15T03:00:00.000Z',
+      status: 'completed',
+      createdAt: '2026-06-15T01:00:00.000Z',
+      updatedAt: '2026-06-15T03:00:00.000Z',
+    },
+    {
+      aiCostUsd: 3.28,
+      totalTokens: 1_500_000,
+      hasUnknownCost: false,
+      gitMetrics: {
+        projectPath: 'd:\\agent-roi',
+        projectName: 'agent-roi',
+        commitCount: 2,
+        filesChanged: 7,
+        linesAdded: 421,
+        linesRemoved: 0,
+      },
+    },
+  );
+
+  assert.match(output, /Cost Per Hour: \$1\.64\/h/);
+});
+
+test('task stop shows tokens per hour', () => {
+  const output = buildTaskStopOutput(
+    {
+      id: 1,
+      name: 'Hourly tokens task',
+      projectPath: 'd:\\agent-roi',
+      startedAt: '2026-06-15T01:00:00.000Z',
+      endedAt: '2026-06-15T03:00:00.000Z',
+      status: 'completed',
+      createdAt: '2026-06-15T01:00:00.000Z',
+      updatedAt: '2026-06-15T03:00:00.000Z',
+    },
+    {
+      aiCostUsd: 3.28,
+      totalTokens: 4_280_000,
+      hasUnknownCost: false,
+      gitMetrics: {
+        projectPath: 'd:\\agent-roi',
+        projectName: 'agent-roi',
+        commitCount: 2,
+        filesChanged: 7,
+        linesAdded: 421,
+        linesRemoved: 0,
+      },
+    },
+  );
+
+  assert.match(output, /Tokens Per Hour: 2\.14M\/h/);
+});
+
 test('task stop with no active task shows friendly message', () => {
   assert.match(buildNoActiveTaskMessage(), /No active task found for this project\./);
 });
@@ -140,9 +200,46 @@ test('task report shows recent completed tasks', () => {
   });
 
   assert.match(lines.join('\n'), /Newer task/);
+  assert.match(lines.join('\n'), /Cost Per Hour: \$2\.67\/h/);
+  assert.match(lines.join('\n'), /Tokens Per Hour: 5\.33k\/h/);
+  assert.match(lines.join('\n'), /Commits Per Hour: 2\.67\/h/);
+  assert.match(lines.join('\n'), /Files Changed Per Hour: 4\/h/);
   assert.match(lines.join('\n'), /Cost Per Commit: \$1\.00/);
 
   db.close();
+});
+
+test('zero or invalid duration shows N/A', () => {
+  const output = buildTaskStopOutput(
+    {
+      id: 1,
+      name: 'Too short task',
+      projectPath: 'd:\\agent-roi',
+      startedAt: '2026-06-15T01:00:00.000Z',
+      endedAt: '2026-06-15T01:00:00.000Z',
+      status: 'completed',
+      createdAt: '2026-06-15T01:00:00.000Z',
+      updatedAt: '2026-06-15T01:00:00.000Z',
+    },
+    {
+      aiCostUsd: 1,
+      totalTokens: 1000,
+      hasUnknownCost: false,
+      gitMetrics: {
+        projectPath: 'd:\\agent-roi',
+        projectName: 'agent-roi',
+        commitCount: 1,
+        filesChanged: 2,
+        linesAdded: 10,
+        linesRemoved: 0,
+      },
+    },
+  );
+
+  assert.match(output, /Cost Per Hour: N\/A/);
+  assert.match(output, /Tokens Per Hour: N\/A/);
+  assert.match(output, /Commits Per Hour: N\/A/);
+  assert.match(output, /Files Changed Per Hour: N\/A/);
 });
 
 test('task with no AI data shows No matched AI data', () => {
@@ -173,6 +270,37 @@ test('task with no AI data shows No matched AI data', () => {
   );
 
   assert.match(output, /No matched AI data/);
+});
+
+test('no AI data does not produce misleading cost per hour', () => {
+  const output = buildTaskStopOutput(
+    {
+      id: 1,
+      name: 'No AI hourly task',
+      projectPath: 'd:\\agent-roi',
+      startedAt: '2026-06-15T01:00:00.000Z',
+      endedAt: '2026-06-15T02:00:00.000Z',
+      status: 'completed',
+      createdAt: '2026-06-15T01:00:00.000Z',
+      updatedAt: '2026-06-15T02:00:00.000Z',
+    },
+    {
+      aiCostUsd: 0,
+      totalTokens: 0,
+      hasUnknownCost: false,
+      gitMetrics: {
+        projectPath: 'd:\\agent-roi',
+        projectName: 'agent-roi',
+        commitCount: 0,
+        filesChanged: 0,
+        linesAdded: 0,
+        linesRemoved: 0,
+      },
+    },
+  );
+
+  assert.match(output, /Cost Per Hour: N\/A/);
+  assert.match(output, /Tokens Per Hour: N\/A/);
 });
 
 test('task with no commits does not crash', () => {
