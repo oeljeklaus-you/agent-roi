@@ -48,6 +48,54 @@ Excluded from task attribution:
 - AI activity outside the task time window
 - sessions from a different project path
 
+## Output Metrics
+
+Task summaries and task reports currently expose:
+
+- Duration
+- AI Cost
+- Cost Per Hour
+- Tokens
+- Tokens Per Hour
+- Commits
+- Commits Per Hour
+- Files Changed
+- Files Changed Per Hour
+- Cost Per Commit
+- Cost Per 1000 LOC
+
+Per-hour metrics are calculated from:
+
+```text
+task.started_at
+↓
+task.ended_at
+↓
+durationHours
+```
+
+Per-hour metrics use that task duration together with matched Codex sessions and matched Git activity.
+
+If duration is zero, invalid, or too short to calculate reliably, per-hour metrics are shown as `N/A`.
+
+Example task summary:
+
+```text
+Task: Fix purchase button
+
+Duration: 2h 0m
+AI Cost: $1.25
+Cost Per Hour: $0.63/h
+Tokens: 1,500,000
+Tokens Per Hour: 750k/h
+Commits: 2
+Commits Per Hour: 1/h
+Files Changed: 7
+Files Changed Per Hour: 3.5/h
+Cost Per Commit: $0.63
+Cost Per 1000 LOC: $2.97
+```
+
 ## FAQ
 
 ### Why does a task show no cost?
