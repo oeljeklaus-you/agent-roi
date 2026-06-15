@@ -144,6 +144,7 @@ export function buildNoActiveTaskMessage(): string {
 
 export function buildTaskStopOutput(task: TaskRecord, summary: TaskMetricsSummary): string {
   const duration = formatDuration(task.startedAt, task.endedAt);
+  const durationHours = getDurationHours(task.startedAt, task.endedAt);
   const lines = [
     chalk.bold('Task Summary'),
     `Name: ${task.name}`,
@@ -157,6 +158,10 @@ export function buildTaskStopOutput(task: TaskRecord, summary: TaskMetricsSummar
     `Files Changed: ${formatInteger(summary.gitMetrics.filesChanged)}`,
     `Lines Added: ${formatInteger(summary.gitMetrics.linesAdded)}`,
     `Lines Removed: ${formatInteger(summary.gitMetrics.linesRemoved)}`,
+    `Cost Per Hour: ${formatTaskCostPerHour(summary, durationHours)}`,
+    `Tokens Per Hour: ${formatTaskTokensPerHour(summary, durationHours)}`,
+    `Commits Per Hour: ${formatTaskCommitsPerHour(summary, durationHours)}`,
+    `Files Changed Per Hour: ${formatTaskFilesChangedPerHour(summary, durationHours)}`,
     `Cost Per Commit: ${formatTaskCostPerCommit(summary)}`,
     `Cost Per 1000 LOC: ${formatTaskCostPer1000Loc(summary)}`,
   ];
@@ -178,6 +183,7 @@ export function buildTaskStopOutput(task: TaskRecord, summary: TaskMetricsSummar
 
 export function buildTaskReportLines(task: TaskRecord, summary: TaskMetricsSummary | null): string[] {
   const duration = formatDuration(task.startedAt, task.endedAt);
+  const durationHours = getDurationHours(task.startedAt, task.endedAt);
   const lines = [
     chalk.cyan(task.name),
     `  Status: ${task.status}`,
@@ -197,6 +203,10 @@ export function buildTaskReportLines(task: TaskRecord, summary: TaskMetricsSumma
   lines.push(`  Files Changed: ${formatInteger(summary.gitMetrics.filesChanged)}`);
   lines.push(`  Lines Added: ${formatInteger(summary.gitMetrics.linesAdded)}`);
   lines.push(`  Lines Removed: ${formatInteger(summary.gitMetrics.linesRemoved)}`);
+  lines.push(`  Cost Per Hour: ${formatTaskCostPerHour(summary, durationHours)}`);
+  lines.push(`  Tokens Per Hour: ${formatTaskTokensPerHour(summary, durationHours)}`);
+  lines.push(`  Commits Per Hour: ${formatTaskCommitsPerHour(summary, durationHours)}`);
+  lines.push(`  Files Changed Per Hour: ${formatTaskFilesChangedPerHour(summary, durationHours)}`);
   lines.push(`  Cost Per Commit: ${formatTaskCostPerCommit(summary)}`);
   lines.push(`  Cost Per 1000 LOC: ${formatTaskCostPer1000Loc(summary)}`);
 
@@ -261,6 +271,18 @@ function formatDuration(startedAt: string, endedAt: string | null): string {
   return `${hours}h ${minutes}m`;
 }
 
+function getDurationHours(startedAt: string, endedAt: string | null): number | null {
+  const startMs = new Date(startedAt).getTime();
+  const endMs = new Date(endedAt ?? nowIso()).getTime();
+  const diffMs = endMs - startMs;
+
+  if (!Number.isFinite(diffMs) || diffMs < 60_000) {
+    return null;
+  }
+
+  return diffMs / (60 * 60 * 1000);
+}
+
 function formatTaskCostPerCommit(summary: TaskMetricsSummary): string {
   if (!summary.aiCostUsd || summary.gitMetrics.commitCount === 0) {
     return 'N/A';
@@ -276,4 +298,66 @@ function formatTaskCostPer1000Loc(summary: TaskMetricsSummary): string {
   }
 
   return formatUsd((summary.aiCostUsd / loc) * 1000);
+}
+
+function formatTaskCostPerHour(summary: TaskMetricsSummary, durationHours: number | null): string {
+  if (durationHours === null || summary.totalTokens === 0 || summary.aiCostUsd === null) {
+    return 'N/A';
+  }
+
+  return `${formatUsd(summary.aiCostUsd / durationHours)}/h`;
+}
+
+function formatTaskTokensPerHour(summary: TaskMetricsSummary, durationHours: number | null): string {
+  if (durationHours === null || summary.totalTokens === 0) {
+    return 'N/A';
+  }
+
+  return `${formatCompactTokens(summary.totalTokens / durationHours)}/h`;
+}
+
+function formatTaskCommitsPerHour(summary: TaskMetricsSummary, durationHours: number | null): string {
+  if (durationHours === null) {
+    return 'N/A';
+  }
+
+  return `${formatPerHourValue(summary.gitMetrics.commitCount / durationHours)}/h`;
+}
+
+function formatTaskFilesChangedPerHour(summary: TaskMetricsSummary, durationHours: number | null): string {
+  if (durationHours === null) {
+    return 'N/A';
+  }
+
+  return `${formatPerHourValue(summary.gitMetrics.filesChanged / durationHours)}/h`;
+}
+
+function formatPerHourValue(value: number): string {
+  if (value === 0) {
+    return '0';
+  }
+
+  if (value >= 10) {
+    return value.toFixed(1).replace(/\.0$/, '');
+  }
+
+  return value.toFixed(2).replace(/0$/, '').replace(/\.0$/, '');
+}
+
+function formatCompactTokens(value: number): string {
+  if (value >= 1_000_000) {
+    return `${trimTrailingZeros((value / 1_000_000).toFixed(2))}M`;
+  }
+
+  if (value >= 1_000) {
+    const thousands = value / 1_000;
+    const digits = thousands >= 100 ? 0 : thousands >= 10 ? 1 : 2;
+    return `${trimTrailingZeros(thousands.toFixed(digits))}k`;
+  }
+
+  return formatPerHourValue(value);
+}
+
+function trimTrailingZeros(value: string): string {
+  return value.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
 }
