@@ -53,11 +53,19 @@ The following commands reuse the same attribution foundation:
 
 - `agent-roi task report`
 - `agent-roi watch`
+- `agent-roi ui`
 - `agent-roi insights`
 - `agent-roi waste`
 - `agent-roi recommend`
 - `agent-roi leaderboard`
 - `agent-roi compare`
+
+In the UI, these same rules power:
+
+- Overview task summaries
+- Projects coverage state
+- Tasks page attribution status
+- task-based analysis pages
 
 Shared attribution rules:
 

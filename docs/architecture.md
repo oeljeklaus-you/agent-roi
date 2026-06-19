@@ -11,7 +11,7 @@ Parsers
 ↓
 SQLite
 ↓
-Reports
+CLI + UI
 ```
 
 ## Core Pipeline
@@ -20,6 +20,7 @@ Reports
 2. Parsers normalize those records into a shared session shape.
 3. Normalized records are stored in SQLite.
 4. CLI commands read SQLite and combine it with Git metrics to produce ROI-style reports.
+5. The local UI reads the same SQLite-backed view models and presents them as dashboard pages.
 
 ## Data Flows
 
@@ -103,3 +104,27 @@ It also keeps the project aligned with the original constraint:
 - no cloud
 - no account system
 - no sync requirement
+
+## UI Layer
+
+The dashboard is still local-first.
+
+Flow:
+
+```text
+SQLite
+↓
+view-models
+↓
+local HTTP server
+↓
+browser UI
+```
+
+It does not add:
+
+- cloud sync
+- hosted storage
+- remote analytics
+
+See [ui.md](ui.md) for the dashboard behavior.

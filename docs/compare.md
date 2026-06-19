@@ -73,6 +73,8 @@ Reasons:
 
 ## Related Commands
 
+- `agent-roi ui`
+  See the same compare signal in the dashboard overview and compare page.
 - `agent-roi insights`
   Review pattern-style hints for the last 30 days.
 - `agent-roi waste`

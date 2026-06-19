@@ -60,6 +60,8 @@ A task may still be valuable if it was:
 
 ## Related Commands
 
+- `agent-roi ui`
+  Review the same potential waste list in the dashboard waste page.
 - `agent-roi insights`
   See broader recent patterns.
 - `agent-roi recommend`

@@ -53,6 +53,8 @@ It helps you compare recent tasks quickly, but it does not assign a universal RO
 
 ## Related Commands
 
+- `agent-roi ui`
+  View the same ranking sections in the dashboard leaderboard page.
 - `agent-roi insights`
   See broader recent patterns behind the rankings.
 - `agent-roi waste`

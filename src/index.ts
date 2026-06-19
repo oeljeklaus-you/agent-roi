@@ -10,6 +10,7 @@ import { runReportCommand } from './commands/report.js';
 import { runScanCommand } from './commands/scan.js';
 import { runTaskReportCommand, runTaskStartCommand, runTaskStopCommand } from './commands/task.js';
 import { runTodayCommand } from './commands/today.js';
+import { runUiCommand } from './commands/ui.js';
 import { runWatchCommand } from './commands/watch.js';
 import { runWasteCommand } from './commands/waste.js';
 
@@ -29,6 +30,14 @@ program
   .description('Track current month Codex spend and projected month-end budget')
   .option('-b, --budget <usd>', 'Monthly budget in USD', Number)
   .action(runBudgetCommand);
+
+program
+  .command('ui')
+  .description('Open the local Agent ROI overview page')
+  .option('-p, --port <port>', 'Port for the local UI server', Number)
+  .option('--open', 'Open the UI in the default browser')
+  .option('-b, --budget <usd>', 'Monthly budget in USD for the budget card', Number)
+  .action(runUiCommand);
 
 program
   .command('compare')

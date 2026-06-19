@@ -69,6 +69,8 @@ Reasons:
 
 ## Related Commands
 
+- `agent-roi ui`
+  Review the same signals in the dashboard insights page.
 - `agent-roi waste`
   Focus on suspicious budget burn.
 - `agent-roi recommend`

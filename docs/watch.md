@@ -98,6 +98,8 @@ bugfix_login
 
 - `agent-roi task`
   Manually start or stop tasks when branch-driven watch mode is not enough.
+- `agent-roi ui`
+  Review the resulting task history, project coverage, and dashboard signals after watch has collected data.
 - `agent-roi report`
   Review repository-level ROI after tasks are captured.
 - `agent-roi compare`

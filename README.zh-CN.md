@@ -2,6 +2,8 @@
 
 Track what your AI coding spend actually produced.
 
+一个本地优先的 CLI + Dashboard，用来查看 AI coding 花费、task attribution、waste、recommendations 和趋势信号。
+
 Connect:
 
 ```text
@@ -29,6 +31,27 @@ AI Cost
 - AI 花费最终产出了什么？
 
 Agent ROI 试图回答这些问题。
+
+## Dashboard
+
+如果你想更快地做一次可视化检查，而不是只看 CLI 输出，可以直接打开本地 dashboard：
+
+```bash
+agent-roi ui --open
+```
+
+![Agent ROI dashboard overview](.github/assets/dashboard-overview.png)
+
+当前 dashboard 可以直接看到：
+
+- `Overview`
+  用可视化方式汇总 spend、coverage gap、趋势方向、waste 信号和下一步建议。
+- `Projects`
+  可搜索、可筛选地查看 tracked / untracked project、sessions、tokens 和最近活动。
+- `Tasks`
+  以 review queue 的形式查看最近 completed tasks、attribution 状态和 Git 输出。
+- `Budget / Compare / Insights / Waste / Recommendations / Leaderboard`
+  把 CLI 里的本地分析拆成独立页面来查看。
 
 ## 示例输出
 
@@ -194,6 +217,8 @@ agent-roi leaderboard
 agent-roi compare
 
 agent-roi budget --budget 30
+
+agent-roi ui --open
 ```
 
 ## Core Workflow
@@ -216,6 +241,8 @@ leaderboard
 compare
 ↓
 budget
+↓
+ui
 ```
 
 每一步的作用：
@@ -240,6 +267,8 @@ budget
   比较最近 7 天和前 7 天的变化。
 - `budget`
   跟踪本月 Codex 花费和月末预算预测。
+- `ui`
+  打开本地 dashboard，查看 overview、projects、tasks、budget、waste、recommendations 和排行榜。
 
 ## Commands
 
@@ -249,6 +278,8 @@ budget
   启动、停止并查看 task attribution 任务。
 - `agent-roi watch`
   每 15 秒轮询当前 Git branch，并自动 start / stop task。
+- `agent-roi ui`
+  打开本地 dashboard。可配合 `--open` 自动打开浏览器，也可配合 `--budget <usd>` 显示预算目标。
 - `agent-roi report`
   查看当前 Git 仓库的 ROI 报告。
 - `agent-roi insights`
@@ -263,6 +294,8 @@ budget
   比较最近 7 天和前 7 天。
 - `agent-roi budget`
   跟踪本月 Codex 花费和月末预算预测。
+- `agent-roi ui`
+  打开本地 dashboard，查看 overview、projects、tasks、budget、waste、recommendations 和排行榜。
 
 ## 它解决什么问题
 
@@ -376,6 +409,7 @@ Agent ROI 当前使用：
 ## 文档
 
 - [docs/attribution.md](docs/attribution.md)
+- [docs/ui.md](docs/ui.md)
 - [docs/insights.md](docs/insights.md)
 - [docs/waste.md](docs/waste.md)
 - [docs/recommend.md](docs/recommend.md)

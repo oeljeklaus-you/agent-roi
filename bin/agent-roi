@@ -1,0 +1,17 @@
+#!/bin/sh
+
+TARGET=$0
+
+while [ -L "$TARGET" ]; do
+  TARGET_DIR=$(CDPATH= cd -- "$(dirname "$TARGET")" && pwd)
+  TARGET_LINK=$(readlink "$TARGET")
+
+  case $TARGET_LINK in
+    /*) TARGET=$TARGET_LINK ;;
+    *) TARGET=$TARGET_DIR/$TARGET_LINK ;;
+  esac
+done
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$TARGET")/.." && pwd)
+
+exec node "$SCRIPT_DIR/dist/index.js" "$@"

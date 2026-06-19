@@ -322,6 +322,18 @@ export type ProjectAiSummary = {
   hasUnknownCost: boolean;
 };
 
+export type ProjectCoverageRow = {
+  projectPath: string;
+  codexSessionCount: number;
+  totalTokens: number;
+  costUsd: number | null;
+  unknownCostCount: number;
+  lastSessionAt: string | null;
+  completedTaskCount: number;
+  activeTaskCount: number;
+  lastTaskEndedAt: string | null;
+};
+
 export function getProjectAiSummary(
   db: Database.Database,
   projectPath: string,
@@ -374,6 +386,53 @@ export function getProjectAiSummary(
     claudeCount: claude?.count ?? 0,
     hasUnknownCost: (codex?.unknownCount ?? 0) > 0,
   };
+}
+
+export function listProjectCoverage(db: Database.Database): ProjectCoverageRow[] {
+  return db
+    .prepare(
+      `
+      WITH codex_projects AS (
+        SELECT
+          project_path AS projectPath,
+          COUNT(*) AS codexSessionCount,
+          COALESCE(SUM(total_tokens), 0) AS totalTokens,
+          SUM(cost_usd) AS costUsd,
+          SUM(CASE WHEN cost_source = 'unknown_model' THEN 1 ELSE 0 END) AS unknownCostCount,
+          MAX(started_at) AS lastSessionAt
+        FROM sessions
+        WHERE source = 'codex'
+        GROUP BY project_path
+      ),
+      task_projects AS (
+        SELECT
+          project_path AS projectPath,
+          SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completedTaskCount,
+          SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS activeTaskCount,
+          MAX(ended_at) AS lastTaskEndedAt
+        FROM tasks
+        GROUP BY project_path
+      )
+      SELECT
+        codex_projects.projectPath AS projectPath,
+        codex_projects.codexSessionCount AS codexSessionCount,
+        codex_projects.totalTokens AS totalTokens,
+        codex_projects.costUsd AS costUsd,
+        codex_projects.unknownCostCount AS unknownCostCount,
+        codex_projects.lastSessionAt AS lastSessionAt,
+        COALESCE(task_projects.completedTaskCount, 0) AS completedTaskCount,
+        COALESCE(task_projects.activeTaskCount, 0) AS activeTaskCount,
+        task_projects.lastTaskEndedAt AS lastTaskEndedAt
+      FROM codex_projects
+      LEFT JOIN task_projects
+        ON task_projects.projectPath = codex_projects.projectPath
+      ORDER BY
+        COALESCE(codex_projects.costUsd, 0) DESC,
+        codex_projects.codexSessionCount DESC,
+        codex_projects.lastSessionAt DESC
+    `,
+    )
+    .all() as ProjectCoverageRow[];
 }
 
 export function getActiveTaskForProject(db: Database.Database, projectPath: string): TaskRecord | null {

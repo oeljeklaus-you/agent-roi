@@ -62,6 +62,8 @@ They should be treated as suggested follow-up actions, not as final truth about 
 
 ## Related Commands
 
+- `agent-roi ui`
+  See the same recommendation output in the dashboard overview and recommendations page.
 - `agent-roi insights`
   Review the patterns that can trigger recommendations.
 - `agent-roi waste`

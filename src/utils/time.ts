@@ -4,8 +4,8 @@ export function nowIso(): string {
   return new Date().toISOString();
 }
 
-export function daysAgoIso(days: number): string {
-  return new Date(Date.now() - days * DAY_MS).toISOString();
+export function daysAgoIso(days: number, baseIso = nowIso()): string {
+  return new Date(new Date(baseIso).getTime() - days * DAY_MS).toISOString();
 }
 
 export function startOfTodayIso(): string {

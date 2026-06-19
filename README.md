@@ -2,6 +2,8 @@
 
 Track what your AI coding spend actually produced.
 
+A local-first CLI and dashboard for AI coding spend, task attribution, waste detection, recommendations, and trend signals.
+
 Connect:
 
 ```text
@@ -29,6 +31,27 @@ But they usually cannot answer:
 - What did the AI spend actually produce?
 
 Agent ROI exists to answer those questions.
+
+## Dashboard
+
+Open a local dashboard when you want a faster visual pass over your recent tasks, project coverage, waste signals, and recommendations.
+
+```bash
+agent-roi ui --open
+```
+
+![Agent ROI dashboard overview](.github/assets/dashboard-overview.png)
+
+What the dashboard currently gives you:
+
+- `Overview`
+  A visual summary of spend, coverage gaps, trend direction, waste signals, and the next recommendation.
+- `Projects`
+  A searchable, filterable view of tracked vs untracked projects, sessions, tokens, and latest activity.
+- `Tasks`
+  A searchable, filterable review queue for recent completed tasks, attribution status, and Git output.
+- `Budget / Compare / Insights / Waste / Recommendations / Leaderboard`
+  The same local analyses from the CLI, organized into dedicated pages.
 
 ## Example Output
 
@@ -194,6 +217,8 @@ agent-roi leaderboard
 agent-roi compare
 
 agent-roi budget --budget 30
+
+agent-roi ui --open
 ```
 
 ## Core Workflow
@@ -216,6 +241,8 @@ leaderboard
 compare
 ↓
 budget
+↓
+ui
 ```
 
 What each step does:
@@ -240,6 +267,8 @@ What each step does:
   Compare the last 7 days with the previous 7 days.
 - `budget`
   Track current month Codex spend and projected month-end budget.
+- `ui`
+  Open the local dashboard for overview, projects, tasks, budget, waste, recommendations, and rankings.
 
 ## Commands
 
@@ -249,6 +278,8 @@ What each step does:
   Start, stop, and review attributed tasks.
 - `agent-roi watch`
   Auto-start and auto-stop tasks by polling the current Git branch every 15 seconds.
+- `agent-roi ui`
+  Open the local dashboard. Use `--open` to launch it in your browser and `--budget <usd>` to show a budget target.
 - `agent-roi report`
   Show repository-level ROI for the current Git repo.
 - `agent-roi insights`
@@ -376,6 +407,7 @@ See [docs/watch.md](docs/watch.md) for the full watch mode behavior.
 ## Docs
 
 - [docs/attribution.md](docs/attribution.md)
+- [docs/ui.md](docs/ui.md)
 - [docs/insights.md](docs/insights.md)
 - [docs/waste.md](docs/waste.md)
 - [docs/recommend.md](docs/recommend.md)
